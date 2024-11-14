@@ -1,0 +1,446 @@
+order by atributo asc o desc, atrib asc
+		al final agrega	NULLS FIRST o NULLS LAST 	nulos al principio o al final
+select * from usuarios order by id limit 3;  		cantidad de registros a mostrar
+WHERE precio > 100 ORDER BY precio DESC, nombre ASC;
+
+select upper/lower(atributo) from tabla;			minusculas y mayusculas
+select trim(nombre), trim(email) from usuarios;			la función TRIM() se utiliza para eliminar los espacios en blanco iniciales y finales de un string.
+SELECT LOWER(TRIM(email)) as email_limpios from usuarios;	minusculas y sin espacios
+select length(apellido) from usuarios;				distancia del string
+select length(email) from usuarios order by length(email) desc limit 3;		te da lo largo del string y los filtras por los mas extensos
+select  email, length(email)as 'length(email)' from usuarios order by length(email)desc limit 3;
+SELECT producto || '-' || marca || '-' || precio AS marca_producto FROM productos;		concatena atributos een un atributo
+
+SUBSTR( string, inicio, largo )
+SELECT SUBSTR(apellido, 1, 3) AS primeras_letras FROM usuarios; 	devuelve los string del atributo con imite de letras
+MySQL se utiliza CURDATE(), y en Microsoft SQL Server se utiliza GETDATE() 
+select  descripcion from tareas where fecha_limite = date('now'); 			para obtener todos lo registros de hoy.
+						     date('now', '1 day')desp		fecha = date('now', '-1 day'); para el dia anterior
+-select monto, strftime('%Y', fecha_venta) as 'año_venta' from ventas;		devuelve el año venta sacando el dia y mes puede con el mes tambien
+		strftime('%m-%Y') para ambos mes y año
+-select * from ventas where strftime('%Y',fecha_venta) = '2015';
+SELECT MAX(columna) FROM tabla		me permite encontrar el valor más alto del atributo
+	MIN()/SUM()/AVG()/COUNT()
+
+where atrib like '%a';			filtra por letra
+
+SELECT DISTINCT color FROM colores; 	En SQL el keyword DISTINCT nos permite filtrar los resultados repetidos de una consulta.
+SELECT COUNT(DISTINCT Departamento) FROM Empleados;	podes filtra dentro de un count para sacar repetidos
+GROUP BY ATRIB HAVING COUNT/MAX/MIN/SUM/AVG	HAVING se emplea para filtrar los resultados de una consulta que involucra funciones agregadas
+GROUP BY strftime("%m", Fecha_Inscripcion)	HAVING cantidad_usuarios >= 2
+
+
+	reporte de meses donde hay 1 inscripto
+SELECT strftime('%m', Fecha_Inscripcion) AS mes, COUNT(Fecha_Inscripcion) AS cantidad_usuarios 
+FROM inscripciones 
+GROUP BY strftime('%m', Fecha_Inscripcion) 
+HAVING COUNT(Fecha_Inscripcion) = 1;
+
+select/from/group by/ having/ order by		orden de sintaxis
+
+
+
+
+	reporte de seleccionar el sueldo del maximo sueldo
+SELECT e.* 
+FROM empleados e
+JOIN (SELECT MAX(sueldo) AS max_sueldo 
+      FROM empleados 
+      WHERE departamento = 'Finanzas') AS finanzas
+ON e.sueldo > finanzas.max_sueldo;
+
+	operador IN
+SELECT *
+FROM table
+WHERE columna IN (SELECT * from otra_tabla)
+	de una consulta a otra sin necesidad de llamar la otra tabla
+SELECT nombre AS nombres_pacientes 
+FROM pacientes 
+WHERE paciente_id IN (
+    SELECT paciente_id 
+    FROM consultas 
+    WHERE fecha_consulta < '2023-05-16'
+)
+	operador ON
+SELECT l.nombre AS nombres_seleccionados
+FROM libros l
+JOIN valoraciones v ON l.libro_id = v.libro_id
+WHERE v.valoracion_promedio > 4;
+
+	subconsulta FROM
+SELECT * 
+    FROM (
+        SELECT * FROM tabla1
+)
+----------------------------
+	subconsulta FROM
+SELECT AVG(total_venta) AS promedio_ventas
+FROM (
+    SELECT empleado_id, SUM(monto) AS total_venta
+    FROM ventas
+    GROUP BY empleado_id
+) AS subconsulta
+
+------------------------
+	El operador UNION en SQL se utiliza para combinar el resultado de dos o más SELECT en un solo conjunto de resultados.
+		filas no repetidas
+SELECT columna1, columna2
+FROM tabla1 
+UNION SELECT columna1, columna2
+FROM tabla2; 
+
+		filas repetidas
+SELECT * FROM tabla1 UNION ALL SELECT * FROM tabla2;
+
+----------------------------
+El operador INTERSECT se utiliza para combinar dos SELECT y devolver los resultados que se encuentran en ambas consultas.
+
+SELECT nombre FROM clientes1 INTERSECT SELECT nombre FROM clientes2
+
+-----------------------------
+EXCEPT devuelve solo las filas, que son parte de la primera consulta pero no de la segunda consulta.
+
+SELECT nombre FROM Tabla1 EXCEPT SELECT nombre FROM Tabla2;
+
+----------------------------
+INSERT INTO tabla(atrib,) VALUES (1, 'Camiseta', 2000);		se inserta valores de forma especifica.
+insert into productos  values (7, 'bolso', 1000, null);		se inserta valores de forma tabla sin nombrar los atributos.
+
+ 	insertar la fecha actual al momento de crear un registro CURRENT_DATE para obtenerla.
+INSERT INTO usuarios (nombre, fecha_creacion) VALUES ('Gonzalo', CURRENT_DATE);
+
+	insertar distintos values dentro de una tabla
+INSERT INTO ventas VALUES ('Gorro', 5, 1000), ('Camiseta', 10, 500), ('Pantalón', 8, 1500);
+
+	borrado por filtro
+DELETE FROM usuarios WHERE id = 2;
+
+	editar
+UPDATE nombre_tabla SET nombre_columna = nuevo_valor
+
+	editar con filtro
+UPDATE nombre_tabla SET nombre_columna = nuevo_valor WHERE condicion;
+
+	editado de multiples con filtro
+UPDATE tabla 
+  SET 
+    columna1 = 'nuevo_valor',
+    columna2 = 'nuevo_valor',
+    columna3 = 'nuevo_valor'
+  WHERE 
+    condicion;
+
+	creacion de tabla
+CREATE TABLE nombre_tabla (nombre_columna1 tipo_de_dato, idem)
+
+
+	eliminacion de tabla
+DROP TABLE IF EXISTS temperaturas;  -- Esto elimina la tabla solo si existe
+
+	actualizar una tabla
+ALTER TABLE nombre_tabla ADD COLUMN nombre_columna tipo_dato;
+
+	union de tablas
+SELECT *
+FROM 
+    usuarios
+INNER JOIN 				La cláusula JOIN permite combinar datos de varias tablas en una única tabla de resultados.
+    datos_contacto
+ON 
+    email1 = email2;
+	
+	dandole apodo para abreviar al join
+SELECT * 
+FROM 
+    usuarios u
+JOIN 
+    notas dc 
+ON 
+    u.email = dc.email
+
+	uniendo atributos totales con selecionados de atributos
+SELECT usuarios.*, datos_contacto.telefono 
+FROM usuarios 
+JOIN datos_contacto 
+ON usuarios.email = datos_contacto.email
+
+	promedio del mas vendido
+SELECT productos.Nombre, SUM(ventas.Cantidad) AS total_vendido
+FROM productos
+JOIN ventas ON productos.ProductoID = ventas.ProductoID
+GROUP BY productos.Nombre
+ORDER BY total_vendido DESC
+LIMIT 1;
+
+
+	pedido de libro mas de una vez
+SELECT 
+    pedidos.usuario_id,
+    pedidos.libro_id,
+    COUNT(*) AS veces
+FROM 
+    pedidos
+GROUP BY 
+    pedidos.usuario_id, 
+    pedidos.libro_id
+HAVING 
+    COUNT(*) > 1;
+	
+	abreviacion con join
+SELECT e.nombre, e.puesto, COUNT(ep.proyecto_id) AS cantidad_proyectos
+FROM Empleados e
+LEFT JOIN Empleados_Proyectos ep ON e.id = ep.empleado_id
+GROUP BY e.id
+ORDER BY cantidad_proyectos DESC;
+
+------- segunda abreviacion	
+SELECT u.email, u.nombre, u.edad, n.notas
+
+FROM usuarios u
+
+INNER JOIN notas n ON u.email = n.email;
+
+	forma de borrar datos repetidos
+DELETE FROM personas
+WHERE ID NOT IN (
+    SELECT MAX(ID)
+    FROM personas
+    GROUP BY nombre, apellido
+);	
+
+
+
+
+
+
+
+
+
+	
+------------------------sdasda problemon
+SELECT e.id_empleado, e.nombre, e.id_departamento, NULL AS departamento
+FROM empleados e
+LEFT JOIN departamentos d ON e.id_departamento = d.id_departamento
+WHERE d.id_departamento IS NULL  -- Empleados sin departamento
+
+UNION
+
+SELECT NULL AS id_empleado, NULL AS nombre, d.id_departamento, d.departamento
+FROM departamentos d
+LEFT JOIN empleados e ON e.id_departamento = d.id_departamento
+WHERE e.id_empleado IS NULL;  -- Departamentos sin empleados
+-----------------------asdasd
+
+-----------------------primer problemon
+-- Paso 1: Crear la nueva tabla
+CREATE TABLE productos2 (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Producto TEXT NOT NULL,
+    Categoría TEXT NOT NULL,
+    Precio REAL NOT NULL
+);
+
+-- Paso 2: Insertar los datos en la nueva tabla
+INSERT INTO productos2 (Producto, Categoría, Precio)
+SELECT Producto, Categoría, Precio
+FROM productos;
+
+-- Paso 3: Borrar la tabla original
+DROP TABLE productos;
+
+-- Paso 4: Renombrar la nueva tabla
+ALTER TABLE productos2 RENAME TO productos;
+--------------------------------------------------------fin
+
+---------------------- segundo problemon
+-- Paso 1: Mantener o crear la tabla normalizada para empleados (ya lo hiciste)
+DROP TABLE IF EXISTS empleados;
+CREATE TABLE empleados (
+    id INT PRIMARY KEY,
+    nombre VARCHAR(100),
+    apellido VARCHAR(100)
+);
+
+-- Paso 2: Insertar datos en la tabla empleados
+INSERT INTO empleados (id, nombre, apellido) VALUES (1, 'Juan', 'Pérez');
+
+-- Paso 3: Mantener o crear la tabla normalizada para proyectos (deberías agregar una clave primaria)
+DROP TABLE IF EXISTS proyectos;
+CREATE TABLE proyectos (
+    id_proyecto INT,
+    id_empleado INT,
+    FOREIGN KEY (id_empleado) REFERENCES empleados(id)
+);
+
+-- Paso 4: Insertar datos en la tabla proyectos
+INSERT INTO proyectos (id_proyecto, id_empleado) VALUES (1, 1);
+INSERT INTO proyectos (id_proyecto, id_empleado) VALUES (2, 1);
+INSERT INTO proyectos (id_proyecto, id_empleado) VALUES (3, 1);
+
+-- Paso 5: Realizar la consulta
+SELECT e.nombre, e.apellido, p.id_proyecto
+FROM empleados e
+JOIN proyectos p ON e.id = p.id_empleado;
+-----------------------------fin
+
+
+----------------------------locura total de mierda
+SELECT
+    p.id,
+    p.productos,
+    LENGTH(productos) - LENGTH(REPLACE(productos, ' ', '')) + 1
+FROM
+    pedidos p;
+------------------------------fin
+
+------------------------------resuelto
+DROP TABLE IF EXISTS notas;
+DROP TABLE IF EXISTS cursos;
+DROP TABLE IF EXISTS estudiantes;
+
+CREATE TABLE estudiantes (
+    ID_de_estudiante INT PRIMARY KEY,
+    Nombre_del_estudiante VARCHAR(100)
+);
+INSERT INTO estudiantes (ID_de_estudiante, Nombre_del_estudiante) VALUES
+(1, 'Juan'),
+(2, 'Ana');
+
+CREATE TABLE cursos (
+    ID_de_curso INT PRIMARY KEY,
+    Nombre_del_curso VARCHAR(100)
+);
+INSERT INTO cursos (ID_de_curso, Nombre_del_curso) VALUES
+(101, 'Matemáticas'),
+(102, 'Historia'),
+(103, 'Ciencia');
+
+CREATE TABLE notas (
+    ID_de_estudiante INT,
+    ID_de_curso INT,
+    Nota INT,
+    FOREIGN KEY (ID_de_estudiante) REFERENCES estudiantes(ID_de_estudiante),
+    FOREIGN KEY (ID_de_curso) REFERENCES cursos(ID_de_curso)
+);
+INSERT INTO notas (ID_de_estudiante, ID_de_curso, Nota) VALUES
+(1, 101, 90),
+(1, 102, 85),
+(2, 101, 95),
+(2, 103, 88);
+
+SELECT 
+    estudiantes.Nombre_del_estudiante AS nombre_estudiante,
+    cursos.Nombre_del_curso AS nombre_curso,
+    notas.Nota
+FROM 
+    estudiantes
+JOIN 
+    notas ON estudiantes.ID_de_estudiante = notas.ID_de_estudiante
+JOIN 
+    cursos ON notas.ID_de_curso = cursos.ID_de_curso;
+--------------------------------fin
+
+--------------------------menudo problema
+CREATE TABLE paises (
+    id INT PRIMARY KEY,
+    pais VARCHAR(100) NOT NULL
+);
+INSERT INTO paises (id, pais) VALUES
+(1, 'Estados Unidos'),
+(2, 'Brasil'),
+(3, 'Francia'),
+(4, 'India'),
+(5, 'Corea del Sur');
+CREATE TABLE musicos (
+    id INT PRIMARY KEY,
+    musico VARCHAR(100) NOT NULL,
+    edad_musico INT NOT NULL,
+    pais_id INT,
+    FOREIGN KEY (pais_id) REFERENCES paises(id)
+);
+
+INSERT INTO musicos (id, musico, edad_musico, pais_id) VALUES
+(1, 'Beyoncé', 42, 1),
+(2, 'Gilberto Gil', 81, 2),
+(3, 'David Guetta', 56, 3),
+(4, 'A. R. Rahman', 57, 4),
+(5, 'RM', 29, 5);
+----------------------------------------fin
+
+--------------------------------------otro problema
+-- Paso 1: Intentar crear una transacción con un usuario que no existe
+INSERT INTO transacciones (id, monto, usuario_id) VALUES (4, 400, 3);
+
+-- Paso 2: Intentar borrar un usuario con transacciones asociadas
+DELETE FROM usuarios WHERE id = 1;
+
+-- Paso 3: Eliminar la clave foránea en la tabla transacciones
+CREATE TABLE transacciones_temp (
+    id INTEGER PRIMARY KEY,
+    monto REAL,
+    usuario_id INTEGER
+);
+
+INSERT INTO transacciones_temp (id, monto, usuario_id)
+SELECT id, monto, usuario_id FROM transacciones;
+
+DROP TABLE transacciones;
+
+ALTER TABLE transacciones_temp RENAME TO transacciones;
+
+-- Paso 4: Actualizar todas las transacciones para que apunten al usuario_id = 3
+UPDATE transacciones SET usuario_id = 3;
+
+-- Paso 5: Eliminar las transacciones existentes para mantener solo las deseadas
+DELETE FROM transacciones WHERE id NOT IN (1, 2, 3);
+
+-- Paso 6: Actualizar las transacciones existentes para que apunten al usuario_id = 3
+UPDATE transacciones SET usuario_id = 3;
+
+-- Verificar el resultado
+SELECT * FROM transacciones; 
+---------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+a) Select * FROM, TA,TB
+TA* ,TB.C1
+
+b) Columna selection por X
+
+
+c) Select distinct(GroupName) from HumanResources.Department;
+
+select NA FROM NameTable
+
+Group by NameAtribut
+
+d) Wheren Atrib LIKE '%julio%'
+
+e)
+
+f)
+
+
+
+susibrest@yahoo.com.ar
+
+
+
+
+
+
+
+
+
+
+
+
